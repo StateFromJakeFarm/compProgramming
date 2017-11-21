@@ -12,6 +12,8 @@ int main() {
 
     // 2-D matrix to hold our palindrome info (dynamic structure)
     vector< vector<bool> > P(n);
+    for(int i=0; i<n; i++)
+        P[i].resize(n);
 
     // Seed our matrix with the length-1 palindromes
     for(int i=0; i<n; i++)
