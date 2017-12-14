@@ -13,26 +13,18 @@ int main() {
         return 0;
     }
 
-    vector<long> C(n+1);
-    long coin;
-    for(long i=0; i<m; i++) {
-        cin >> coin;
+    vector<long> C(m);
+    for(long i=0; i<m; i++)
+        cin >> C[i];
 
-        if(coin <= n)
-            C[coin] = 1;
+    vector<long> T(n+1);
+    T[0] = 1;
+    for(int i=0; i<m; i++) {
+        for(int j=C[i]; j<=n; j++)
+            T[j] += T[ j-C[i] ];
     }
 
-    for(long i=1; i<=n; i++) {
-        for(long j=i-1; j>i/2; j--) {
-            if(C[j] && C[i-j])
-                C[i] += C[j] * C[i-j];
-        }
-    for(int q=1; q<=n; q++)
-        cout << C[q] << " ";
-    cout << endl;
-    }
-
-    cout << C[n] << endl;
+    cout << T[n] << endl;
 
     return 0;
 }
