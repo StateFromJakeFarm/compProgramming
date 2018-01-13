@@ -29,7 +29,7 @@ int shortestPathDFS(const vector<int> & board, const vector<int> & outPoints) {
             return rolls[u];
 
         // We have a 6-sided die
-        for (int i=1; i<=6; i++) {
+        for (int i=0; i<=6; i++) {
             int v = u+i;
             // Don't go over the edge of board
             if (v <= 99 && colors[v] == w) {
