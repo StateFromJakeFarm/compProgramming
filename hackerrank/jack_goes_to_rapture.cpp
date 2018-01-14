@@ -30,6 +30,15 @@ list< pair<int, int> >::iterator find_in_Q(list< pair<int, int> > & Q, int elm) 
     return it;
 }
 
+int get_weight(const graph & G, int vertex, int neighbor) {
+    for (int i=0; i<(int)G[vertex].size(); i++) {
+        if (G[vertex][i].first == neighbor)
+            return G[vertex][i].second;
+    }
+
+    return -1;
+}
+
 graph Prims(const graph & G) {
     graph MST( G.size() );
 
@@ -54,9 +63,10 @@ graph Prims(const graph & G) {
         Q.erase(min_iter);
 
         // Add this edge to our MST
-        MST[u].push_back( G[u][ parents[u] ] );
-        MST[ parents[u] ].push_back( G[ parents[u] ][u] );
-        cout << "adding " << u+1 << " to " << G[u][ parents[u] ].first+1 << " (" << G[u][ parents[u] ].second << ")" << endl;
+        int parent = parents[u];
+        int weight = get_weight(G, u, parent);
+        MST[u].push_back( make_pair(parent, weight) );
+        MST[parent].push_back ( make_pair(u, weight) );
 
         // Update for neighbors
         for (int i=0; i<(int)G[u].size(); i++) {
@@ -73,14 +83,12 @@ graph Prims(const graph & G) {
 }
 
 int dfs(const graph & G, int cur_vertex, vector<int> & max_on_path, vector<bool> & visited) {
-    cout << cur_vertex << endl;
     visited[cur_vertex] = 1;
     if (cur_vertex == (int)G.size()-1)
         return max_on_path[cur_vertex];
 
     for (int i=0; i<(int)G[cur_vertex].size(); i++) {
         int v = G[cur_vertex][i].first;
-        cout << cur_vertex << " to " << v << endl;
         if (visited[v] == false) {
             if (max_on_path[v] < G[cur_vertex][i].second)
                 max_on_path[v] = G[cur_vertex][i].second;
