@@ -118,8 +118,10 @@ int main() {
         G[v-1].push_back( make_pair(u-1, w) );
     }
 
+    // Get MST
     graph MST = Prims(G);
 
+    // Run DFS to find largest edge weight on path from first to last node
     vector<int> max_on_path( G.size() );
     max_on_path[0] = 0;
     vector<bool> visited( G.size() );
