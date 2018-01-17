@@ -3,35 +3,27 @@
 import heapq
 from sys import maxsize
 
+distances = []
+
 class Graph:
     class Node_and_rank:
-        def __init__(self, n, dist):
+        def __init__(self, n):
             self.n = n
-            self.dist = dist
-
-        def set_dist(self, dist):
-            self.dist = dist
-
-        def get_dist(self):
-            return self.dist
 
         def __lt__(self, other):
-            return self.dist < other.dist
+            return distances[self.n] < distances[other.n]
 
     def __init__(self, N):
         self.N = N
         self.Nodes = [{} for n in range(self.N)]
 
     def add_edge(self, x, y, r):
-        G.Nodes[x][y] = r
-        G.Nodes[y][x] = r
+        if y not in G.Nodes[x] or r < G.Nodes[x][y]:
+            G.Nodes[x][y] = r
+            G.Nodes[y][x] = r
 
     def dijkstras(self, S):
-        distances = [maxsize for n in range(self.N)]
-        distances[S] = 0
-
-        Q = [Graph.Node_and_rank(n, maxsize) for n in range(self.N)]
-        Q[S].set_dist(0)
+        Q = [Graph.Node_and_rank(n) for n in range(self.N)]
         heapq.heapify(Q)
 
         while len(Q) > 0:
@@ -39,14 +31,7 @@ class Graph:
             for adj in self.Nodes[u].keys():
                 if distances[adj] > distances[u] + self.Nodes[u][adj]:
                     distances[adj] = distances[u] + self.Nodes[u][adj]
-
-                    for elm in Q:
-                        if elm.n == adj:
-                            elm.dist = distances[adj]
-                            heapq.heapify(Q)
-                            break
-
-        return distances
+                    heapq.heapify(Q)
 
 # Number of testcases
 T = int(input())
@@ -69,7 +54,13 @@ for t in range(T):
     S = int(input())-1
 
     # Run Dijkstra's algo to get minimum distances
-    for i, dist in enumerate(G.dijkstras(S)):
+    distances = [maxsize for n in range(N)]
+    distances[S] = 0
+    G.dijkstras(S)
+    for i, dist in enumerate(distances):
         if i != S:
-            print(dist, end=' ')
+            if dist == maxsize:
+                print(-1, end=' ')
+            else:
+                print(dist, end=' ')
     print()
