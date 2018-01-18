@@ -17,9 +17,9 @@ int main() {
         P = PQ.substr(1, space_index);
         Q = PQ.substr(space_index+1, PQ.length()-1);
 
-        vector< vector<int> > table(P.length());
+        vector< vector<int> > table(P.length()-1);
         for (int i=0; i<P.length(); i++)
-            table[i].resize(P.length());
+            table[i].resize(P.length()-1);
 
         for (int i=0; i<P.length(); i++) {
             for (int j=0; j<P.length(); j++) {
@@ -39,41 +39,20 @@ int main() {
         }
 
         int max_len = 0;
-        for (int i=0; i<P.length(); i++) {
-            for (int j=0; j<P.length(); j++) {
-                if (table[i][j] == true) {
-                    int diff = 0;
-                    int len  = 1;
-                    int max_dim = max(i, j);
-                    for (int q=1; max_dim+q<P.length(); q++) {
-                        if (table[i+q][j+q] == true) {
-                            len++;
-                        } else if (diff < S) {
-                            len++;
-                            diff++;
-                        } else {
-                            break;
-                        }
-                    }
+        // Upper-right through middle
+        for (int d=0; d<table.size(); d++) {
+            int len = 0;
+            int diag_max = 0;
+            int num_blank = 0;
 
-                    if (diff < S) {
-                        int min_dim = min(i, j);
-                        for (int q=1; diff<S && min_dim-q>=0; q++) {
-                            if (table[i-q][j-q] == false) {
-                                len++;
-                                diff++;
-                            } else {
-                                break;
-                            }
-                        }
-                    }
-
-                    max_len = max(len, max_len);
-                }
+            for (int i=table.size()-1; i>=0; i--) {
+cout << d << ": " << i << ", " << i-d << endl;
+                int val = table[i][i+d];
             }
         }
+        cout << max_len << endl;
 
-        cout << max(min(max_len, 1500), S) << endl;
+        // Middle+1 through bottom-left
     }
 
     return 0;
