@@ -14,12 +14,12 @@ int main() {
         getline(cin, PQ);
 
         int space_index = PQ.length()/2;
-        P = PQ.substr(1, space_index);
+        P = PQ.substr(1, space_index-1);
         Q = PQ.substr(space_index+1, PQ.length()-1);
 
-        vector< vector<int> > table(P.length()-1);
-        for (int i=0; i<P.length()-1; i++)
-            table[i].resize(P.length()-1);
+        vector< vector<int> > table(P.length());
+        for (int i=0; i<P.length(); i++)
+            table[i].resize(P.length());
 
         int max_for_S_equal_zero = 0;
         for (int i=0; i<table.size(); i++) {
@@ -42,61 +42,64 @@ int main() {
         }
 
         int max_len = 0;
-        // Upper-right through middle
         for (int d=0; d<table.size(); d++) {
-            int len = 0;
-            int diag_max = 0;
-            int num_blank = 0;
+            for (int j=table.size()-1-d; j>=0; j--) {
+                if (table[j][j+d] == 0)
+                    continue;
 
-            for (int i=table.size()-1-d; i>=0; i--) {
-                int val = table[i][i+d];
-                if (val == 0) {
-                    if (num_blank == S) {
-                        diag_max = max(diag_max, len);
-                        len = 0;
-                        num_blank = 0;
+                int len = 0;
+                int num_blank = 0;
+                for (int i=j; i>=0; i--) {
+                    int val = table[i][i+d];
+                    if (val == 0) {
+                        if (num_blank == S) {
+                            max_len = max(max_len, len);
+
+                            len = 0;
+                            num_blank = 0;
+                        } else {
+                            num_blank++;
+                            len++;
+                        }
                     } else {
-                        num_blank++;
-                        len++;
+                        len += val;
+                        i -= val-1;
                     }
-                } else {
-                    len += val;
-                    i -= val;
+
+                    max_len = max(max_len, len);
                 }
-
-                diag_max = max(diag_max, len);
             }
-
-            max_len = max(max_len, diag_max);
         }
 
-        // Middle+1 through bottom-left
         for (int d=0; d<table.size(); d++) {
-            int len = 0;
-            int diag_max = 0;
-            int num_blank = 0;
+            for (int j=table.size()-1-d; j>=0; j--) {
+                if (table[j+d][j] == 0)
+                    continue;
 
-            for (int i=table.size()-1-d; i>=0; i--) {
-                int val = table[i+d][i];
-                if (val == 0) {
-                    if (num_blank == S) {
-                        diag_max = max(diag_max, len);
-                        len = 0;
-                        num_blank = 0;
+                int len = 0;
+                int num_blank = 0;
+                for (int i=j; i>=0; i--) {
+                    int val = table[i+d][i];
+                    if (val == 0) {
+                        if (num_blank == S) {
+                            max_len = max(max_len, len);
+
+                            len = 0;
+                            num_blank = 0;
+                        } else {
+                            num_blank++;
+                            len++;
+                        }
                     } else {
-                        num_blank++;
-                        len++;
+                        len += val;
+                        i -= val-1;
                     }
-                } else {
-                    len += val;
-                    i -= val;
+
+                    max_len = max(max_len, len);
                 }
-
-                diag_max = max(diag_max, len);
             }
-
-            max_len = max(max_len, diag_max);
         }
+
         cout << max_len << endl;
     }
 
