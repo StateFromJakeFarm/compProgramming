@@ -1,74 +1,57 @@
 #include <iostream>
-#include <cmath>
 #include <vector>
-#include <algorithm>
+#include <utility>
 
 using namespace std;
 
-struct vertex {
-    vector<int> adj;
-    int id;
-    char c;
-};
+typedef vector<int> vi;
+typedef vector<vi> adj_list;
 
-typedef vector<vertex> Graph;
-
-int dfsVisit(Graph & G, int u, int id) {
-    int numFound = 1;
-    G[u].c = 'g';
-    G[u].id = id;
-
-    for(unsigned i=0; i<G[u].adj.size(); i++) {
-        int v = G[u].adj[i];
-        if(G[v].c == 'w') {
-            numFound += dfsVisit(G, v, id);
-        }
-    }
-
-    G[u].c = 'b';
-
-    return numFound;
+void add_edge(adj_list & adj, int u, int v) {
+    adj[u].push_back(v);
+    adj[v].push_back(u);
 }
 
-vector<int> dfs(Graph & G) {
-    vector<int> idSizes;
-    int id = 0;
+void dfs(const adj_list & adj, vi & visited, int u, int & sum) {
+    sum++;
+    visited[u] = 1;
 
-    for(unsigned u=0; u<G.size(); u++)
-        G[u].c = 'w';
-
-    for(unsigned u=0; u<G.size(); u++) {
-        if(G[u].c == 'w') {
-            idSizes.push_back( dfsVisit(G, u, id));
-            ++id;
-        }
+    for (int i=0; i<(int)adj[u].size(); i++) {
+        int neighbor = adj[u][i];
+        if (visited[neighbor] == 0)
+            dfs(adj, visited, neighbor, sum);
     }
-
-    return idSizes;
 }
 
 int main() {
-    long N, P;
+    int N, P;
     cin >> N >> P;
 
-    Graph G;
-    G.resize(N);
-
-    int a1, a2;
-    for(int i=0; i<P; i++) {
-        cin >> a1 >> a2;
-
-        G[a1].adj.push_back(a2);
-        G[a2].adj.push_back(a1);
+    vi visited(N);
+    adj_list adj(N);
+    int u, v;
+    for (int p=0; p<P; p++) {
+        cin >> u >> v;
+        add_edge(adj, u, v);
     }
 
-    long numPairs = N*(N-1)/2;
-    vector<int> idSizes = dfs(G);
-    for(unsigned i=0; i<idSizes.size(); i++) {
-        int webSize = idSizes[i];
-        numPairs -= webSize*(webSize-1)/2;
+    vi cc_sizes;
+    for (int n=0; n<N; n++) {
+        if (visited[n] == 0) {
+            int sum = 0;
+            dfs(adj, visited, n, sum);
+            cc_sizes.push_back(sum);
+        }
     }
-    cout << numPairs << endl;
+
+    int total = 0;
+    for (int i=0; i<(int)cc_sizes.size(); i++) {
+        for (int j=i+1; j<(int)cc_sizes.size(); j++) {
+            total += cc_sizes[i] * cc_sizes[j];
+        }
+    }
+
+    cout << total << endl;
 
     return 0;
 }
