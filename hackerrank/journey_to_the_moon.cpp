@@ -48,7 +48,6 @@ int main() {
 
         add_edge(adj, not_alone, u, v);
     }
-    cout << num_alone << endl;
 
     vi cc_sizes;
     for (long n=0; n<N; n++) {
