@@ -29,6 +29,8 @@ int main() {
         long max_xp = -1;
         for (int s=1; s<=N; s++) {
             max_xp = max(s*sum_health, max_xp);
+            if (max_xp != s*sum_health)
+                break;
 
             sum_health -= monsters[s-1];
         }
