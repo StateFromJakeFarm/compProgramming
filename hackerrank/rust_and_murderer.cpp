@@ -2,14 +2,14 @@
 #include <vector>
 #include <queue>
 #include <unordered_map>
+#include <cmath>
 
 using namespace std;
 
 typedef vector<long> vl;
 typedef vector<vl> vvl;
-typedef vector< unordered_map<long, bool> > inverse;
 
-void bfs(vvl &G, const long &S, vl &dist) {
+long bfs(vvl &G, const long &S, vl &dist) {
     vector<short> color( G.size() );
     queue<long> Q;
 
@@ -40,30 +40,36 @@ int main() {
     for (int t=0; t<T; t++) {
         cin >> N >> M;
 
-        inverse G_inv(N);
+        cin >> S;
+        S--;
+
+        unordered_map<long, bool> neighbors;
+        vvl G(N);
         for (int m=0; m<M; m++) {
             cin >> x >> y;
             x--; y--;
 
-            G_inv[x][y] = true;
-            G_inv[y][x] = true;
+            G[x].push_back(y);
+            G[y].push_back(x);
+
+            if (x == S)
+                neighbors[y] = true;
+            if (y == S)
+                neighbors[x] = true;
         }
-
-        vvl G(N);
-        for (long n=0; n<N; n++)
-            for (long q=0; q<N; q++)
-                if (q != n && G_inv[n].find(q) == G_inv[n].end())
-                    G[n].push_back(q);
-
-        cin >> S;
-        S--;
 
         vl dist(N);
         bfs(G, S, dist);
 
+        long total = N*(N-1)/4;
+        long quarter_total = ceil(total/2);
         for (long n=0; n<N; n++)
-            if (n != S)
-                cout << dist[n] << ' ';
+            if (n != S) {
+                if (neighbors.find(n) != neighbors.end())
+                    cout << quarter_total - dist[n] << ' ';
+                else
+                    cout << 1 << ' ';
+            }
         cout << endl;
     }
 
