@@ -7,8 +7,9 @@
 using namespace std;
 
 long stones(long piles, long size, const vector<long> &S, unordered_map<string, long> &dp) {
-    if (dp.find(to_string(piles) + to_string(size)) != dp.end())
-        return dp[to_string(piles) + to_string(size)];
+    string key = to_string(piles) + ':' + to_string(size);
+    if (dp.find(key) != dp.end())
+        return dp[key];
 
     long max_moves = 0;
     for (unsigned int i=0; i<S.size(); i++) {
@@ -20,7 +21,7 @@ long stones(long piles, long size, const vector<long> &S, unordered_map<string, 
             max_moves = max(max_moves, stones(piles*size/x, x, S, dp) + piles);
     }
 
-    dp[to_string(piles) + to_string(size)] = max_moves;
+    dp[key] = max_moves;
 
     return max_moves;
 }
