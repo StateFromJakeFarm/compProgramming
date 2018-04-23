@@ -11,6 +11,7 @@ using namespace std;
 typedef vector< vector< pair<long,long> > > adj_list;
 typedef unordered_map<long, bool> table;
 typedef vector<long> vl;
+typedef vector<bool> vb;
 
 long start;
 
@@ -53,6 +54,29 @@ void dfs(const long &cur, const adj_list &G, vl &dists, vl &parents) {
 
         dfs(child, G, dists, parents);
     }
+}
+
+long dfs_min_cost(const long &cur, const adj_list &G, vb &seen, const table &diameter_vertices) {
+    long cost = 0;
+    for (long i=0; i<G[cur].size(); i++) {
+        long child = G[cur][i].first;
+        if (seen[child])
+            continue;
+        seen[child] = true;
+
+        long dist = G[cur][i].second;
+        if (diameter_vertices.find(cur) != diameter_vertices.end()) {
+            if (diameter_vertices.find(child) != diameter_vertices.end()) {
+                cost += (dist + dfs_min_cost(child, G, seen, diameter_vertices));
+            } else {
+                cost += 2*(dist + dfs_min_cost(child, G, seen, diameter_vertices));
+            }
+        } else {
+            cost += (dist + dfs_min_cost(child, G, seen, diameter_vertices));
+        }
+    }
+
+    return cost;
 }
 
 long get_furthest(vl &dists) {
@@ -121,6 +145,10 @@ int main() {
         i = parents[i];
     }
     diameter_vertices[i] = true;
+
+    vb seen(N);
+    seen[t] = true;
+    cout << dfs_min_cost(t, G_new, seen, diameter_vertices) << endl;
 
     return 0;
 }
