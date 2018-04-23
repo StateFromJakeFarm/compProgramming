@@ -1,32 +1,36 @@
 #include <iostream>
+#include <climits>
 #include <vector>
 #include <queue>
 #include <unordered_map>
 #include <utility>
+#include <algorithm>
 
 using namespace std;
 
 typedef vector< vector< pair<long,long> > > adj_list;
 typedef unordered_map<long, bool> table;
-typedef vector<bool> vb;
+typedef vector<long> vl;
 
-bool dfs(const long &cur, const adj_list &G, adj_list &G_new, const table &letters, vb &seen) {
+long start;
+
+bool dfs_make_graph(const long &cur, const adj_list &G, adj_list &G_new, const table &letters, vl &dists) {
     bool saw_letter = false;
     for (long i=0; i<G[cur].size(); i++) {
         long child = G[cur][i].first;
-        if (seen[child])
+        if (child == start || dists[child] != 0)
             continue;
-        seen[child] = true;
 
-        long dist = G[cur][i].second;
+        long child_dist = G[cur][i].second;
+        dists[child] = dists[cur] + child_dist;
 
-        bool child_has_letter = dfs(child, G, G_new, letters, seen);
+        bool child_has_letter = dfs_make_graph(child, G, G_new, letters, dists);
         if (!saw_letter)
             saw_letter = child_has_letter;
 
         if (child_has_letter) {
-            G_new[cur].push_back(make_pair(child, dist));
-            G_new[child].push_back(make_pair(cur, dist));
+            G_new[cur].push_back(make_pair(child, G[cur][i].second));
+            G_new[child].push_back(make_pair(cur, G[cur][i].second));
         }
     }
 
@@ -36,11 +40,23 @@ bool dfs(const long &cur, const adj_list &G, adj_list &G_new, const table &lette
     return saw_letter;
 }
 
+void dfs(const long &cur, const adj_list &G, vl &dists) {
+    for (long i=0; i<G[cur].size(); i++) {
+        long child = G[cur][i].first;
+        if (child == start || dists[child] != 0)
+            continue;
+
+        long child_dist = G[cur][i].second;
+        dists[child] = dists[cur] + child_dist;
+
+        dfs(child, G, dists);
+    }
+}
+
 int main() {
     long N, K;
     cin >> N >> K;
 
-    long start;
     table letters;
     for (long k=0; k<K; k++) {
         long city;
@@ -64,9 +80,21 @@ int main() {
 
     // G_new is tree without throwaway paths (no letter cities in them)
     adj_list G_new(N);
-    vb seen(N);
-    seen[start] = true;
-    dfs(start, G, G_new, letters, seen);
+    vl dists(N);
+    dfs_make_graph(start, G, G_new, letters, dists);
+
+    for (long i=0; i<N; i++)
+        dists[i] = 0;
+    dfs(start, G_new, dists);
+
+    long furthest_from_start;
+    long max_dist = INT_MIN;
+    for (long i=0; i<N; i++) {
+        if (dists[i] > max_dist) {
+            max_dist = dists[i];
+            furthest_from_start = i;
+        }
+    }
 
     return 0;
 }
