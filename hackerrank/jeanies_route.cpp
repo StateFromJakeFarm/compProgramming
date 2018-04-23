@@ -40,7 +40,7 @@ bool dfs_make_graph(const long &cur, const adj_list &G, adj_list &G_new, const t
     return saw_letter;
 }
 
-void dfs(const long &cur, const adj_list &G, vl &dists) {
+void dfs(const long &cur, const adj_list &G, vl &dists, vl &parents) {
     for (long i=0; i<G[cur].size(); i++) {
         long child = G[cur][i].first;
         if (child == start || dists[child] != 0)
@@ -49,8 +49,24 @@ void dfs(const long &cur, const adj_list &G, vl &dists) {
         long child_dist = G[cur][i].second;
         dists[child] = dists[cur] + child_dist;
 
-        dfs(child, G, dists);
+        parents[child] = cur;
+
+        dfs(child, G, dists, parents);
     }
+}
+
+long get_furthest(vl &dists) {
+    long furthest = 0;
+    long max_dist = INT_MIN;
+
+    for (long i=0; i<dists.size(); i++) {
+        if (dists[i] > max_dist) {
+            max_dist = dists[i];
+            furthest = i;
+        }
+    }
+
+    return furthest;
 }
 
 int main() {
@@ -81,20 +97,30 @@ int main() {
     // G_new is tree without throwaway paths (no letter cities in them)
     adj_list G_new(N);
     vl dists(N);
+    vl parents(N);
     dfs_make_graph(start, G, G_new, letters, dists);
+
+    // Get diametrically-opposed vertices
+    for (long i=0; i<N; i++)
+        dists[i] = 0;
+    dfs(start, G_new, dists, parents);
+    long s = get_furthest(dists);
 
     for (long i=0; i<N; i++)
         dists[i] = 0;
-    dfs(start, G_new, dists);
+    start = s;
+    parents[s] = s;
+    dfs(s, G_new, dists, parents);
+    long t = get_furthest(dists);
 
-    long furthest_from_start;
-    long max_dist = INT_MIN;
-    for (long i=0; i<N; i++) {
-        if (dists[i] > max_dist) {
-            max_dist = dists[i];
-            furthest_from_start = i;
-        }
+    // Get vertices on path between s and t
+    table diameter_vertices;
+    long i = t;
+    while (i != s) {
+        diameter_vertices[i] = true;
+        i = parents[i];
     }
+    diameter_vertices[i] = true;
 
     return 0;
 }
