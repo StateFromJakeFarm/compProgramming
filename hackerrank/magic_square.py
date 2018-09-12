@@ -31,8 +31,8 @@ for i in range(n):
 
 # Get min diff between input square and every rotation of the magic square and its transpose
 min_diff = 99999
-for i in range(2):
-    for i in range(4):
+for t in range(2):
+    for r in range(4):
         min_diff = min(min_diff, square_diff(magic_square, input_square))
 
         magic_square = rotate_square(magic_square)
