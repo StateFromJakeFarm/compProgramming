@@ -1,132 +1,49 @@
 #include <iostream>
 #include <vector>
-#include <list>
-#include <climits>
-#include <string>
 #include <utility>
+#include <climits>
 #include <algorithm>
 
 using namespace std;
 
-typedef vector< vector< pair<int, int> > > graph;
+void dfs(const vector< vector< pair<int, long> > > &G, vector<long> &max_on_path, const int u) {
+    int v;
+    long c, max_to_v_from_u;
+    for (int j=0; j<G[u].size(); j++) {
+        v = G[u][j].first;
+        c = G[u][j].second;
 
-list< pair<int, int> >::iterator get_min_iter(list< pair<int, int> > & Q) {
-    auto min_iter = Q.begin();
-    for (auto it=Q.begin(); it!=Q.end(); it++) {
-        if (it->second < min_iter->second)
-            min_iter = it;
-    }
+        max_to_v_from_u = max(max_on_path[u], c);
 
-    return min_iter;
-}
-
-list< pair<int, int> >::iterator find_in_Q(list< pair<int, int> > & Q, int elm) {
-    list< pair<int, int> >::iterator it;
-    for (it = Q.begin(); it!=Q.end(); it++) {
-        if (it->first == elm)
-            return it;
-    }
-
-    return it;
-}
-
-int get_weight(const graph & G, int vertex, int neighbor) {
-    for (int i=0; i<(int)G[vertex].size(); i++) {
-        if (G[vertex][i].first == neighbor)
-            return G[vertex][i].second;
-    }
-
-    return -1;
-}
-
-graph Prims(const graph & G) {
-    graph MST( G.size() );
-
-    vector<int> parents;
-    list< pair<int, int> > Q;
-    for (int i=0; i<G.size(); i++) {
-        int weight = INT_MAX;
-        int parent = INT_MAX;
-        if (i == 0) {
-            weight = 0;
-            parent = 0;
-        }
-
-        parents.push_back(parent);
-        Q.push_back( make_pair(i, weight) );
-    }
-
-    while (!Q.empty()) {
-        // Extract min "rank" (smallest known edge weight)
-        auto min_iter = get_min_iter(Q);
-        int u = min_iter->first;
-        Q.erase(min_iter);
-
-        // Add this edge to our MST
-        int parent = parents[u];
-        int weight = get_weight(G, u, parent);
-        MST[u].push_back( make_pair(parent, weight) );
-        MST[parent].push_back ( make_pair(u, weight) );
-
-        // Update for neighbors
-        for (int i=0; i<(int)G[u].size(); i++) {
-            int v = G[u][i].first;
-            auto find_v = find_in_Q(Q, v);
-            if (find_v != Q.end() && find_v->second > G[u][i].second) {
-                find_v->second = G[u][i].second;
-                parents[v] = u;
-            }
+        if (max_on_path[v] > max_to_v_from_u) {
+            max_on_path[v] = max_to_v_from_u;
+            dfs(G, max_on_path, v);
         }
     }
-
-    return MST;
-}
-
-int dfs(const graph & G, int cur_vertex, vector<int> & max_on_path, vector<bool> & visited) {
-    visited[cur_vertex] = 1;
-    if (cur_vertex == (int)G.size()-1)
-        return max_on_path[cur_vertex];
-
-    for (int i=0; i<(int)G[cur_vertex].size(); i++) {
-        int v = G[cur_vertex][i].first;
-        if (visited[v] == false) {
-            if (max_on_path[v] < G[cur_vertex][i].second)
-                max_on_path[v] = G[cur_vertex][i].second;
-
-            if (max_on_path[v] < max_on_path[cur_vertex])
-                max_on_path[v] = max_on_path[cur_vertex];
-
-            return dfs(G, v, max_on_path, visited);
-        }
-    }
-
-    return -1;
 }
 
 int main() {
-    // Construct graph from input
-    int N;
-    cin >> N;
-    graph G(N);
+    int N, E;
+    cin >> N >> E;
 
-    int E;
-    cin >> E;
-    int u, v, w;
-    for (int e=0; e<E; e++) {
-        cin >> u >> v >> w;
-        G[u-1].push_back( make_pair(v-1, w) );
-        G[v-1].push_back( make_pair(u-1, w) );
+    vector< vector< pair<int, long> > > G(N);
+    int u, v, c;
+    for (int i=0; i<E; i++) {
+        cin >> u >> v >> c;
+        u--; v--;
+        G[u].push_back( make_pair(v, c) );
+        G[v].push_back( make_pair(u, c) );
     }
 
-    // Get MST
-    graph MST = Prims(G);
-
-    // Run DFS to find largest edge weight on path from first to last node
-    vector<int> max_on_path( G.size() );
+    vector<long> max_on_path(G.size(), LONG_MAX);
     max_on_path[0] = 0;
-    vector<bool> visited( G.size() );
-    visited[0] = 1;
-    cout << dfs(MST, 0, max_on_path, visited) << endl;
+    dfs(G, max_on_path, 0);
+
+    if (max_on_path[N-1] == LONG_MAX) {
+        cout << "NO PATH EXISTS" << endl;
+    } else {
+        cout << max_on_path[N-1] << endl;
+    }
 
     return 0;
 }
