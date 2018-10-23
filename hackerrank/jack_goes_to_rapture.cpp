@@ -8,8 +8,8 @@
 
 using namespace std;
 
-//      u       adj_ls       v    c
 typedef vector< vector< pair<int, int> > > Graph;
+typedef vector< tuple<int, int, int> > Edges;
 
 void dfs(const Graph &G, vector<int> &max_on_path, const int u) {
     int v;
@@ -22,6 +22,12 @@ void dfs(const Graph &G, vector<int> &max_on_path, const int u) {
 
         if (max_on_path[v] > max_to_v_from_u) {
             max_on_path[v] = max_to_v_from_u;
+
+            if (v == (int)G.size()-1) {
+                // Because this is a tree, we can stop when we hit destination
+                return;
+            }
+
             dfs(G, max_on_path, v);
         }
     }
@@ -48,7 +54,7 @@ int get_parent(const Graph &G, vector<int> &parents, const int &u) {
 }
 
 // Find MST of graph
-Graph kruskal(const Graph &G, vector< tuple<int, int, int> > &edge_weights) {
+Graph kruskal(const Graph &G, Edges &edge_weights) {
     // Sort edge weights
     sort(edge_weights.begin(), edge_weights.end());
 
@@ -85,7 +91,7 @@ int main() {
     }
 
     int u, v, c;
-    vector< tuple<int, int, int> > edge_weights(E);
+    Edges edge_weights(E);
     for (int i=0; i<E; i++) {
         cin >> u >> v >> c;
         u--; v--;
