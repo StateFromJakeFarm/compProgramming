@@ -11,26 +11,27 @@ using namespace std;
 typedef vector< vector< pair<int, int> > > Graph;
 typedef vector< tuple<int, int, int> > Edges;
 
-void dfs(const Graph &G, vector<int> &max_on_path, const int u) {
-    int v;
-    int c, max_to_v_from_u;
+int dfs(const Graph &G, const int u, const int p, const int my_cost) {
+    if (u == (int)G.size()-1) {
+        return my_cost;
+    }
+
+    int v, c;
+    int max_found = INT_MIN;
     for (int j=0; j<G[u].size(); j++) {
         v = G[u][j].first;
         c = G[u][j].second;
 
-        max_to_v_from_u = max(max_on_path[u], c);
-
-        if (max_on_path[v] > max_to_v_from_u) {
-            max_on_path[v] = max_to_v_from_u;
-
-            if (v == (int)G.size()-1) {
-                // Because this is a tree, we can stop when we hit destination
-                return;
-            }
-
-            dfs(G, max_on_path, v);
+        if (v == p) {
+            // Don't revisit parent
+            continue;
         }
+
+        int ret = dfs(G, v, u, max(my_cost, c));
+        max_found = max(ret, max_found);
     }
+
+    return max_found;
 }
 
 // Add edge to the graph
@@ -40,17 +41,12 @@ void add_edge(Graph &G, const int &u, const int &v, const int &c) {
 }
 
 // Run path compression and return current parent
-int get_parent(const Graph &G, vector<int> &parents, const int &u) {
-    int cur = u;
-    int prev = cur;
-    while (parents[cur] != cur) {
-        prev = cur;
-        cur = parents[cur];
+int get_root(vector<int> &roots, const int &u) {
+    if (u != roots[u]) {
+        roots[u] = get_root(roots, roots[u]);
     }
 
-    parents[u] = cur;
-
-    return cur;
+    return roots[u];
 }
 
 // Find MST of graph
@@ -58,10 +54,10 @@ Graph kruskal(const Graph &G, Edges &edge_weights) {
     // Sort edge weights
     sort(edge_weights.begin(), edge_weights.end());
 
-    // Set parents
-    vector<int> parents(G.size());
+    // Set roots
+    vector<int> roots(G.size());
     for (int i=0; i<(int)G.size(); i++) {
-        parents[i] = i;
+        roots[i] = i;
     }
 
     // Create MST
@@ -72,8 +68,13 @@ Graph kruskal(const Graph &G, Edges &edge_weights) {
         u = get<1>(e);
         v = get<2>(e);
 
-        if (get_parent(G, parents, u) != get_parent(G, parents, v)) {
+        int p;
+        if (get_root(roots, u) != get_root(roots, v)) {
             add_edge(MST, u, v, c);
+            cout << "adding edge from " << u << " to " << v << endl;
+            p = min(roots[v], roots[u]);
+            roots[v] = p;
+            roots[u] = p;
         }
     }
 
@@ -103,14 +104,12 @@ int main() {
     Graph MST = kruskal(G, edge_weights);
 
     // Get heaviest edge on path from stations 1 to N
-    vector<int> max_on_path(MST.size(), INT_MAX);
-    max_on_path[0] = 0;
-    dfs(MST, max_on_path, 0);
+    int best = dfs(MST, 0, 0, 0);
 
-    if (max_on_path[N-1] == INT_MAX) {
+    if (best == INT_MIN) {
         cout << "NO PATH EXISTS" << endl;
     } else {
-        cout << max_on_path[N-1] << endl;
+        cout << best << endl;
     }
 
     return 0;
