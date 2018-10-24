@@ -41,12 +41,13 @@ void add_edge(Graph &G, const int &u, const int &v, const int &c) {
 }
 
 // Run path compression and return current parent
-int get_root(vector<int> &roots, const int &u) {
-    if (u != roots[u]) {
-        roots[u] = get_root(roots, roots[u]);
+int get_root(vector<int> &root, int u) {
+    while (root[u] != u) {
+        root[u] = root[root[u]];
+        u = root[u];
     }
 
-    return roots[u];
+    return u;
 }
 
 // Find MST of graph
@@ -54,10 +55,10 @@ Graph kruskal(const Graph &G, Edges &edge_weights) {
     // Sort edge weights
     sort(edge_weights.begin(), edge_weights.end());
 
-    // Set roots
-    vector<int> roots(G.size());
+    // Set root
+    vector<int> root(G.size());
     for (int i=0; i<(int)G.size(); i++) {
-        roots[i] = i;
+        root[i] = i;
     }
 
     // Create MST
@@ -68,13 +69,15 @@ Graph kruskal(const Graph &G, Edges &edge_weights) {
         u = get<1>(e);
         v = get<2>(e);
 
-        int p;
-        if (get_root(roots, u) != get_root(roots, v)) {
+        int x, y;
+        if (get_root(root, u) != get_root(root, v)) {
             add_edge(MST, u, v, c);
-            cout << "adding edge from " << u << " to " << v << endl;
-            p = min(roots[v], roots[u]);
-            roots[v] = p;
-            roots[u] = p;
+
+            // Union the trees
+            x = get_root(root, u);
+            y = get_root(root, v);
+
+            root[x] = root[y];
         }
     }
 
