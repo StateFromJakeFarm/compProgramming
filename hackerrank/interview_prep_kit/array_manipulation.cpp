@@ -8,6 +8,7 @@ using namespace std;
 struct Interval {
     long a, b, k;
     vector<Interval*> touches;
+    bool visited = false;
 };
 
 pair<long, long> no_intersection = make_pair(-1, -1);
@@ -18,6 +19,35 @@ pair<long, long> intersection(Interval *i1, Interval *i2) {
     }
 
     return no_intersection;
+}
+
+pair<long, long> intersection(const pair<long, long> &cur_interval, Interval *i2) {
+    if (cur_interval.second >= i2->a && cur_interval.first <= i2->b) {
+        return make_pair(max(cur_interval.first, i2->a),
+            min(cur_interval.second, i2->b));
+    }
+
+    return no_intersection;
+}
+
+long long dfs_visit(Interval *interval, pair<long, long> cur_interval) {
+    if (cur_interval == no_intersection) {
+        return 0;
+    }
+
+    interval->visited = true;
+
+    long long max_sum = interval->k;
+    for (unsigned i=0; i<interval->touches.size(); i++) {
+        if (!interval->touches[i]->visited) {
+            max_sum = max(max_sum, interval->k + dfs_visit(interval->touches[i],
+                intersection(cur_interval, interval->touches[i])));
+        }
+    }
+
+    interval->visited = false;
+
+    return max_sum;
 }
 
 int main() {
@@ -36,6 +66,13 @@ int main() {
             }
         }
     }
+
+    long long max_sum = 0;
+    for (long i=0; i<m; i++) {
+        max_sum = max(max_sum, dfs_visit(&intervals[i], make_pair(intervals[i].a, intervals[i].b)));
+    }
+
+    cout << max_sum << endl;
 
     return 0;
 }
