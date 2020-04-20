@@ -1,24 +1,28 @@
 class Solution:
     def trap(self, a):
-        lr = [x for x in a]
-        rl = [x for x in a]
+        if len(a) < 2:
+            return 0
 
-        # Get max going l --> r
-        for i in range(1, len(a)):
-            lr[i] = max(lr[i-1], a[i])
-
-        # Get max going l <-- r
-        for i in range(len(a)-2, -1, -1):
-            rl[i] = max(rl[i+1], a[i])
+        i, j = 0, len(a) - 1
+        l_max, r_max = a[i], a[j]
 
         total = 0
-        for i in range(len(a)):
-            total += (min(lr[i], rl[i]) - a[i])
+        while i < j:
+            if a[i] < a[j] or a[i] == a[j]:
+                total += l_max - a[i]
+
+                i += 1
+                l_max = max(l_max, a[i])
+            else:
+                total += r_max - a[j]
+
+                j -= 1
+                r_max = max(r_max, a[j])
 
         return total
 
 
 s = Solution()
 
-a = [0,1,0,2,1,0,1,3,2,1,2,1]
+a = [0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]
 print(s.trap(a))
