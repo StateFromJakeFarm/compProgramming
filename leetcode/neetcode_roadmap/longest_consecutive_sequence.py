@@ -1,32 +1,33 @@
 class Solution:
     def longestConsecutive(self, nums: list[int]) -> int:
-        S = set(nums)
+        if len(nums) == 0:
+            return 0
 
-        longest = 0
-        for n in nums:
-            if n not in S:
-                # n has already been included in another "run"
+        longest = 1
+        S = set(nums)
+        for num in nums:
+            if num not in S:
                 continue
 
-            S.remove(n)
+            l = num
+            r = num
+            cur_len = 1
+            while l-1 in S or r+1 in S:
+                if l-1 in S:
+                    l -= 1
+                    S.remove(l)
+                    cur_len += 1
 
-            lower = n - 1
-            while lower in S:
-                S.remove(lower)
-                lower -= 1
-            lower += 1 # Last one we checked DNE
+                if r+1 in S:
+                    r += 1
+                    S.remove(r)
+                    cur_len += 1
 
-            higher = n + 1
-            while higher in S:
-                S.remove(higher)
-                higher += 1
-            higher -= 1 # Last one we checked DNE
-
-            longest = max(longest, higher - lower + 1)
+            longest = max(longest, cur_len)
 
         return longest
 
-S = Solution()
+nums = [1,0,1,2]
 
-nums = list(range(5000)) + list(range(-12, -10))
+S = Solution()
 print(S.longestConsecutive(nums))

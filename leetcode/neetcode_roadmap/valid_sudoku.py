@@ -1,49 +1,79 @@
 class Solution:
-    def isValidSudoku(self, board: list[list[str]]) -> bool:
-        square_sets = [[set() for j in range(3)] for i in range(3)]
-
-        # Check rows
+    def checkRow(self, board, r):
+        seen = [False for _ in range(9)]
         for i in range(9):
-            cur_set = set()
-            for j in range(9):
-                if board[i][j] == '.':
-                    continue
+            num = board[r][i]
+            if num == '.':
+                continue
 
-                if board[i][j] in cur_set:
-                    return False
-                cur_set.update(board[i][j])
-
-                # Check squares while we check rows
-                s_i = i // 3
-                s_j = j // 3
-                if board[i][j] in square_sets[s_i][s_j]:
-                    return False
-                square_sets[s_i][s_j].update(board[i][j])
-
-        # Check cols
-        for j in range(9):
-            cur_set = set()
-            for i in range(9):
-                if board[i][j] == '.':
-                    continue
-
-                if board[i][j] in cur_set:
-                    return False
-                cur_set.update(board[i][j])
+            num = int(num)
+            num -= 1
+            if seen[num]:
+                return False
+            seen[num] = True
 
         return True
 
-board = \
-[[".",".","4",".",".",".","6","3","."]
-,[".",".",".",".",".",".",".",".","."]
-,["5",".",".",".",".",".",".","9","."]
-,[".",".",".","5","6",".",".",".","."]
-,["4",".","3",".",".",".",".",".","1"]
-,[".",".",".","7",".",".",".",".","."]
-,[".",".",".","5",".",".",".",".","."]
-,[".",".",".",".",".",".",".",".","."]
-,[".",".",".",".",".",".",".",".","."]]
+
+    def checkCol(self, board, c):
+        seen = [False for _ in range(9)]
+        for i in range(9):
+            num = board[i][c]
+            if num == '.':
+                continue
+
+            num = int(num)
+            num -= 1
+            if seen[num]:
+                return False
+            seen[num] = True
+
+        return True
+
+
+    def checkSquare(self, board, s):
+        r = int(s / 3) * 3
+        c = (s % 3) * 3
+
+        seen = [False for _ in range(9)]
+        for i in range(3):
+            for j in range(3):
+                num = board[r + i][c + j]
+                if num == '.':
+                    continue
+
+                num = int(num)
+                num -= 1
+                if seen[num]:
+                    return False
+                seen[num] = True
+
+        return True
+
+
+    def isValidSudoku(self, board: list[list[str]]) -> bool:
+        for i in range(9):
+            if not self.checkRow(board, i):
+                return False
+            if not self.checkCol(board, i):
+                return False
+            if not self.checkSquare(board, i):
+                return False
+
+        return True
+
 
 S = Solution()
 
+board = [
+    ["5","3",".",".","7",".",".",".","."],
+    ["6",".",".","1","9","5",".",".","."],
+    [".","9","8",".",".",".",".","6","."],
+    ["8",".",".",".","6",".",".",".","3"],
+    ["4",".",".","8",".","3",".",".","1"],
+    ["7",".",".",".","2",".",".",".","6"],
+    [".","6",".",".",".",".","2","8","."],
+    [".",".",".","4","1","9",".",".","5"],
+    [".",".",".",".","8",".",".","7","9"]
+]
 print(S.isValidSudoku(board))
