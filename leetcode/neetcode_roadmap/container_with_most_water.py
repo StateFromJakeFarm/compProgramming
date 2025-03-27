@@ -1,22 +1,23 @@
 class Solution:
-    def maxArea(self, height: list[int]) -> int:
+    def maxArea(self, heights: list[int]) -> int:
         i = 0
-        j = len(height) - 1
-
-        max_area = 0
+        j = len(heights) - 1
+        best = 0
         while i < j:
-            area = min(height[i], height[j]) * (j - i)
-            max_area = max(max_area, area)
+            area = (j-i) * min(heights[i], heights[j])
+            best = max(best, area)
 
-            if height[i] < height[j]:
+            if heights[i] < heights[j]:
                 i += 1
+            elif heights[i] > heights[j]:
+                j -= 1
             else:
+                i += 1
                 j -= 1
 
-        return max_area
+        return best
 
-
-height = [1,8,6,2,5,4,8,3,7]
 
 S = Solution()
+height = [1,7,2,5,4,7,3,6]
 print(S.maxArea(height))
