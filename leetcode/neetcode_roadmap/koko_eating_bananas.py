@@ -1,41 +1,41 @@
 from math import ceil
 
+
 class Solution:
-    def getTime(self, k):
-        return sum(map(lambda p: ceil(p / k), self.piles))
+    def total_hours(self, k):
+        total = 0
+        for x in self.piles:
+            total += ceil(x/k)
+
+        return total
 
 
     def minEatingSpeed(self, piles: list[int], h: int) -> int:
         self.piles = piles
 
         lo = 1
-        hi = max(self.piles)
-
-        min_good_k = float('inf')
+        hi = max(piles)
+        k = hi
         while lo <= hi:
-            k = (lo + hi) // 2
-            if self.getTime(k) <= h:
-                min_good_k = min(min_good_k, k)
+            mid = (lo + hi) // 2
 
-                hi = k - 1
+            mid_hours = self.total_hours(mid)
+            if (mid_hours <= h) and (mid < k):
+                # Found solution
+                k = mid
+
+            if mid_hours <= h:
+                # May be able to go slower
+                hi = mid - 1
             else:
-                if k == min_good_k - 1:
-                    return min_good_k
+                lo = mid + 1
 
-                lo = k + 1
+        return k
 
-        return lo
-
-
-piles = [3,6,7,11]
-h = 8
-
-piles = [30,11,23,4,20]
-h = 5
-
-piles = [30,11,23,4,20]
-h = 6
 
 S = Solution()
+
+piles = [1,1,1,999999999]
+h = 10
 
 print(S.minEatingSpeed(piles, h))
