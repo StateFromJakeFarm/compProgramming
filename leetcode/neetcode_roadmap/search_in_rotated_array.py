@@ -1,42 +1,50 @@
 class Solution:
     def search(self, nums: list[int], target: int) -> int:
-        lo = 0
-        hi = len(nums) - 1
-        while True:
-            mid = (lo + hi) // 2
-
-            if target == nums[mid]:
-                return mid
-            if target == nums[lo]:
-                return lo
-            if target == nums[hi]:
-                return hi
-
-            if lo == hi or lo == hi - 1:
+        if len(nums) in [1, 2]:
+            try:
+                return nums.index(target)
+            except:
                 return -1
 
-            if nums[lo] < nums[mid] and nums[mid] < nums[hi]:
-                # In order; regular search
-                if target < nums[mid]:
-                    hi = mid
-                else:
-                    lo = mid
-            elif nums[mid] > nums[hi]:
-                # Break is to the right
-                if target > nums[mid] or target <= nums[hi]:
-                    lo = mid
-                else:
-                    hi = mid
-            else:
+        lo, hi = 0, len(nums) - 1
+        while (lo + 1) < hi:
+            mid = (lo + hi) // 2
+            if nums[mid] == target:
+                return mid
+
+            if nums[lo] > nums[mid]:
                 # Break is to the left
-                if target > nums[mid] and target <= nums[hi]:
-                    lo = mid
+
+                if target >= nums[lo] or target <= nums[mid]:
+                    # Go left
+                    hi = mid - 1
                 else:
-                    hi = mid
+                    lo = mid + 1
+            elif nums[hi] < nums[mid]:
+                # Break is to the right
+
+                if target >= nums[mid] or target <= nums[hi]:
+                    # Go right
+                    lo = mid + 1
+                else:
+                    hi = mid - 1
+            else:
+                # Ascending order; regular binary search
+                if nums[mid] < target:
+                    lo = mid + 1
+                else:
+                    hi = mid - 1
+
+        if nums[lo] == target:
+            return lo
+        if nums[hi] == target:
+            return hi
+
+        return -1
 
 
-nums = [4,5,6,7,8,1,2,3]
-target = 8
+nums = [4,5,6,7,0,1,2]
+target = 0
 
 S = Solution()
 print(S.search(nums, target))

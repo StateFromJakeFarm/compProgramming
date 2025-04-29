@@ -1,42 +1,57 @@
 class TimeMap:
+
     def __init__(self):
-        self.D = {}
+        self.vals = {}
+
 
     def set(self, key: str, value: str, timestamp: int) -> None:
-        if key not in self.D:
-            self.D[key] = [(value, timestamp)]
+        if key in self.vals:
+            self.vals[key].append((timestamp, value))
         else:
-            self.D[key].append((value, timestamp))
+            self.vals[key] = [(timestamp, value)]
+
 
     def get(self, key: str, timestamp: int) -> str:
-        if key not in self.D or self.D[key][0][1] > timestamp:
+        if key not in self.vals:
             return ''
 
-        if timestamp > self.D[key][-1][1]:
-            return self.D[key][-1][0]
+        L = self.vals[key]
 
-        lo = 0
-        hi = len(self.D[key]) - 1
+        if L[-1][0] <= timestamp:
+            return L[-1][1]
+
+        if L[0][0] > timestamp:
+            return ''
+
+        lo, hi = 0, len(L) - 1
         while lo < hi:
             mid = (lo + hi) // 2
-            if self.D[key][mid][1] == timestamp:
-                return self.D[key][mid][0]
-            if mid == hi - 1 and self.D[key][mid][1] < timestamp and timestamp < self.D[key][hi][1]:
-                return self.D[key][mid][0]
+            mid_timestamp = L[mid][0]
 
-            if timestamp < self.D[key][mid][1]:
-                hi = mid - 1
-            else:
+            if mid_timestamp == timestamp:
+                return L[mid][1]
+
+            if mid_timestamp < timestamp:
                 lo = mid + 1
+            else:
+                hi = mid - 1
 
-        return self.D[key][lo][0]
+        if L[lo][0] <= timestamp:
+            return L[lo][1]
+
+        if (lo > 0):
+            return L[lo-1][1]
+
+        return L[0][1]
 
 
-# Your TimeMap object will be instantiated and called as such:
 obj = TimeMap()
-obj.set('foo', 'bar', 1)
-obj.get('foo', 1)
-obj.get('foo', 3)
-obj.set('foo', 'bar2', 4)
-obj.get('foo', 4)
-obj.get('foo', 5)
+
+actions = ["set","set","set","set","get"]
+params = [["foo","bar",1],["foo", "toilet", 5],["foo", "bucket", 10],["foo","bar2",20],["foo",15]]
+for a, p in zip(actions, params):
+    if a == 'set':
+        obj.set(*p)
+        print(None)
+    else:
+        print(obj.get(*p))
