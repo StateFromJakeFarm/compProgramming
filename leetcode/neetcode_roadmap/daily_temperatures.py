@@ -1,25 +1,21 @@
-from collections import deque
-
 class Solution:
     def dailyTemperatures(self, temperatures: list[int]) -> list[int]:
-        big_to_small = deque()
-        answers = [0 for _ in temperatures]
+        answer = [0 for t in temperatures]
 
-        for i in range(len(temperatures)):
-            while len(big_to_small) > 0:
-                top = big_to_small[-1]
-                if temperatures[i] > temperatures[top]:
-                    answers[top] = i - top
-                    big_to_small.pop()
-                else:
-                    break
+        stack = []
+        for i, t in enumerate(temperatures):
+            while len(stack) and stack[-1][0] < t:
+                _, past_i = stack.pop(-1)
+                answer[past_i] = i - past_i
 
-            big_to_small.append(i)
+            stack.append((t, i))
 
-        return answers
+        return answer
 
 
 temperatures = [73,74,75,71,69,72,76,73]
+#temperatures = [30,40,50,60]
+#temperatures = [30,60,90]
 
 S = Solution()
 print(S.dailyTemperatures(temperatures))

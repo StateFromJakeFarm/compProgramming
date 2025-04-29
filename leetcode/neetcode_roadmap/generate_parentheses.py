@@ -1,25 +1,28 @@
 class Solution:
-    def rec(self, l, o, c):
-        if o == self.n and c == self.n:
-            self.all.append(''.join(l))
+    def __init__(self):
+        self.solutions = []
+
+
+    def level(self, max_open, stack, n_open):
+        if len(stack) == max_open*2:
+            if n_open == 0:
+                self.solutions.append(stack)
+
             return
 
-        if o < self.n:
-            self.rec(l + ['('], o+1, c)
-        if o > c:
-            self.rec(l + [')'], o, c+1)
+        if n_open < max_open:
+            self.level(max_open, stack + ['('], n_open + 1)
+
+        if n_open > 0:
+            self.level(max_open, stack + [')'], n_open - 1)
 
 
     def generateParenthesis(self, n: int) -> list[str]:
-        self.n = n
-        self.all = []
+        self.level(n, ['('], 1)
 
-        self.rec([], 0, 0)
+        return [''.join(x) for x in self.solutions]
 
-        return self.all
-
-
-n = 3
 
 S = Solution()
-print(S.generateParenthesis(n))
+
+print(S.generateParenthesis(4))
